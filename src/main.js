@@ -34,12 +34,35 @@ const ico = new THREE.Mesh(geometry, material);
 scene.add(ico);
 
 
+// import empty room
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const loader = new GLTFLoader();
+// workaround for pathing, because after bundling path is different
+// must include asset in vite.config.js
+import roomModel from '../public/room.glb';
+loader.load( roomModel, processRoom ); 
+function processRoom(gltf) {
+  const room = gltf.scene;
+  room.scale.x = 0.3;
+  room.scale.y = 0.3;
+  room.scale.z = 0.3;
+  room.rotation.y = -Math.PI / 2;
+  room.position.x = 3;
+  room.position.y = 1;
+  room.position.z = 12;
+  scene.add(gltf.scene);
+  console.log("loaded scene");
+}
+
+
+
 // light
 { 
-  const color = 0xFFFFFF;
-  const intensity = 500;
+  const color = 0x888888;
+  const intensity = 50;
   const light = new THREE.PointLight(color, intensity);
   light.position.z = 5;
+  light.position.y = 5;
   scene.add(light);
 }
 
