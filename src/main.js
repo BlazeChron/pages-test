@@ -17,7 +17,16 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 import { createShimaebox } from './shimaebox.js';
 const [shimaebox, shimaeboxMaterial] = createShimaebox();
 scene.add(shimaebox);
-//scene.add(shimaeboxShadow);
+
+import { createTarget } from './target.js';
+const [target, targetMaterial] = createTarget();
+target.position.z = 1;
+target.scale.x = 0.5;
+target.scale.y = 0.5;
+target.scale.z = 0.5;
+scene.add(target);
+
+// add target
 
 // import empty room
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -65,11 +74,28 @@ function processRoom(gltf) {
 
 }
 
+//raycasting code
+const pointer = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+
+let intersections = [];
+
+const onMouseMove = (event) => {
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const intersects = raycaster.intersectObjects(scene.children);
+  intersections = intersects;
+}
+window.addEventListener('mousemove', onMouseMove);
+
 
 // orbit controls
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const controls = new OrbitControls( camera, renderer.domElement );
 //controls.update();
+
+console.log(targetMaterial);
 
 function render(time) {
   time *= 0.001 / 2;
@@ -78,6 +104,15 @@ function render(time) {
   shimaebox.rotation.y += 0.001;
 
   shimaeboxMaterial.uniforms.uTime = {value: time}
+
+  // check if target is hovered
+  if (intersections.map(x => x.object).includes(target)) {
+    targetMaterial.uniforms.uTime.value += 0.001 * 5 / 2;
+    targetMaterial.uniforms.uIsFocused = {value: true};
+  } else {
+    targetMaterial.uniforms.uTime.value += 0.001 / 2;
+    targetMaterial.uniforms.uIsFocused = {value: false};
+  }
 
   renderer.render(scene, camera);
   requestAnimationFrame(render);
