@@ -14,32 +14,17 @@ camera.position.z = 3;
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.setSize( window.innerWidth, window.innerHeight );
 
-import vertexShader from '../shaders/vertex.glsl';
-import fragmentShader from '../shaders/fragment.glsl';
-
-// meshes
-import shimaenagaTexture from '../public/shimaenaga_frames.png';
-//const geometry = new THREE.PlaneGeometry(2, 2, 2, 2);
-const geometry = new THREE.BoxGeometry();
-console.log(geometry);
-const material = new THREE.ShaderMaterial({
-  vertexShader: vertexShader,
-  fragmentShader: fragmentShader,
-//  wireframe: true,
-});
-material.uniforms.uTime = {value: 0}
-material.uniforms.uTexture = {value: new THREE.TextureLoader().load(shimaenagaTexture)}
-console.log(material);
-const ico = new THREE.Mesh(geometry, material);
-scene.add(ico);
-
+import { createShimaebox } from './shimaebox.js';
+const [shimaebox, shimaeboxMaterial] = createShimaebox();
+scene.add(shimaebox);
+//scene.add(shimaeboxShadow);
 
 // import empty room
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const loader = new GLTFLoader();
 // workaround for pathing, because after bundling path is different
 // must include asset in vite.config.js
-import roomModel from '../public/room.glb';
+import roomModel from '../public/assets/room.glb';
 loader.load( roomModel, processRoom ); 
 function processRoom(gltf) {
   const room = gltf.scene;
@@ -49,8 +34,8 @@ function processRoom(gltf) {
   room.rotation.y = -Math.PI / 2;
   room.position.x = 3;
   room.position.y = 1;
-  room.position.z = 12;
-  scene.add(gltf.scene);
+  room.position.z = 12.5;
+  scene.add(room);
   console.log("loaded scene");
 }
 
@@ -58,12 +43,26 @@ function processRoom(gltf) {
 
 // light
 { 
-  const color = 0x888888;
+  const color = 0x666666;
   const intensity = 50;
-  const light = new THREE.PointLight(color, intensity);
-  light.position.z = 5;
-  light.position.y = 5;
+  const light = new THREE.SpotLight(color, intensity);
+  light.position.z = 2;
+  light.position.y = 1;
+  light.angle = Math.PI / 6;
+  light.target = shimaebox;
+  light.decay = 2;
+  light.penumbra = 1;
+  light.castShadow = true;
   scene.add(light);
+  const light2 = new THREE.DirectionalLight(color, 0.5);
+  light2.position.z = 3;
+  light2.target = shimaebox;
+  light2.penumbra = 1;
+  scene.add(light2);
+  const ambientColor = 0x222222;
+  const ambientLight = new THREE.AmbientLight(ambientColor, 1);
+  scene.add(ambientLight);
+
 }
 
 
@@ -75,10 +74,10 @@ const controls = new OrbitControls( camera, renderer.domElement );
 function render(time) {
   time *= 0.001 / 2;
     
-  ico.rotation.x += 0.001;
-  ico.rotation.y += 0.001;
+  shimaebox.rotation.x += 0.001;
+  shimaebox.rotation.y += 0.001;
 
-  material.uniforms.uTime = {value: time}
+  shimaeboxMaterial.uniforms.uTime = {value: time}
 
   renderer.render(scene, camera);
   requestAnimationFrame(render);
