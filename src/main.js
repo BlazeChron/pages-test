@@ -16,8 +16,10 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 
 import { createShimaebox } from './shimaebox.js';
 const [shimaebox, shimaeboxMaterial] = createShimaebox();
+shimaebox.scale.copy(new THREE.Vector3(0.8, 0.8, 0.8));
 scene.add(shimaebox);
 
+// add target
 import { createTarget } from './target.js';
 const [target, targetMaterial] = createTarget();
 target.position.z = 1;
@@ -25,8 +27,6 @@ target.scale.x = 0.5;
 target.scale.y = 0.5;
 target.scale.z = 0.5;
 scene.add(target);
-
-// add target
 
 // import empty room
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -37,17 +37,24 @@ import roomModel from '../public/assets/room.glb';
 loader.load( roomModel, processRoom ); 
 function processRoom(gltf) {
   const room = gltf.scene;
-  room.scale.x = 0.3;
-  room.scale.y = 0.3;
-  room.scale.z = 0.3;
+  room.scale.copy(new THREE.Vector3(0.3, 0.3, 0.3));
   room.rotation.y = -Math.PI / 2;
-  room.position.x = 3;
-  room.position.y = 1;
-  room.position.z = 12.5;
+  room.position.copy(new THREE.Vector3(3, 1, 12.5));
   scene.add(room);
   console.log("loaded scene");
+
+  // multiple meshes in room, need traversal to cover everything
+  room.traverse(function (child) {
+    if (child.isMesh) {
+      child.receiveShadow = true;
+    }
+  })
 }
 
+
+// shadows
+renderer.shadowMap.enabled = true;
+shimaebox.castShadow = true;
 
 
 // light
@@ -70,8 +77,10 @@ function processRoom(gltf) {
   scene.add(light2);
   const ambientColor = 0x222222;
   const ambientLight = new THREE.AmbientLight(ambientColor, 1);
-  scene.add(ambientLight);
+  //scene.add(ambientLight);
 
+  light.castShadow = true;
+  light2.castShadow = true;
 }
 
 //raycasting code
@@ -88,7 +97,13 @@ const onMouseMove = (event) => {
   intersections = intersects;
 }
 window.addEventListener('mousemove', onMouseMove);
-
+// on mouse click
+const onClick = (event) => {
+  if (intersections.map(x => x.object).includes(target)) {
+    console.log("Open menu");
+  }
+}
+window.addEventListener('click', onClick);
 
 // orbit controls
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';

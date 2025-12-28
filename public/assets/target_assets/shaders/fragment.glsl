@@ -29,16 +29,18 @@ void main() {
   // only color blue if index mod 3 is not 0 i.e. every third segment is blank
   float blue = step(0.1, mod(segmentIndex, 3.0));
 
-  color = vec3(0.0, 0.0, blue);
+  color = vec3(0.0, blue, blue);
   // bounded step function inbetween ranges 0.0 to 0.5
+  float baseAlpha = 0.5;
+  float focusedAlpha = 0.8;
   float max = 0.5;
   float base = 0.4;
   float low = 0.3;
   float high = 0.4;
   if (isFocused) {
-    gl_FragColor = vec4(color, step(0.5, blue) * step(low, length(uv)) * step(max - high, max - length(uv)));
+    gl_FragColor = vec4(color, focusedAlpha * step(0.5, blue) * step(low, length(uv)) * step(max - high, max - length(uv)));
   } else {
-    gl_FragColor = vec4(color, step(0.5, blue) * step(base, length(uv)));
+    gl_FragColor = vec4(color, baseAlpha * step(0.5, blue) * step(base, length(uv)));
   }
 
 }`
