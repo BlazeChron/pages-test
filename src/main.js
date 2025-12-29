@@ -1,9 +1,14 @@
+/*
+main script
+Loads threejs scene into the c canvas
+*/
 import * as THREE from 'three';
 
 const scene = new THREE.Scene();
 
 const canvas = document.querySelector("#c");
 
+// Camera
 const fov = 75;
 const aspect = 2;
 const near = 0.1;
@@ -13,23 +18,28 @@ camera.position.z = 3;
 
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.shadowMap.enabled = true;
+
 
 import { createShimaebox } from './shimaebox.js';
 const [shimaebox, shimaeboxMaterial] = createShimaebox();
 shimaebox.scale.copy(new THREE.Vector3(0.8, 0.8, 0.8));
+shimaebox.castShadow = true;
 scene.add(shimaebox);
 
-// add target
+// add Target Circle
 import { createTarget } from './target.js';
 const [target, targetUpdate] = createTarget();
 target.position.z = 1;
 target.scale.copy(new THREE.Vector3(0.5, 0.5, 0.5));
 scene.add(target);
 
-// create menu
+// add Menu popup 
 import { createMenu } from './menu.js';
+// Font is imported here due to path resolution issues post-build
 import xirodFont from '../public/assets/menu_assets/fonts/xirod_regular.json';
-const [menuUpdate, barMat, fontMat, onMenuClick, onMenuHover] = createMenu(target, xirodFont, 1, 1, 0);
+const [menuUpdate, onMenuClick, onMenuHover] = createMenu(target, xirodFont,
+                                                          1, 1, 0);
 
 // import empty room
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -42,26 +52,17 @@ function processRoom(gltf) {
   const room = gltf.scene;
   room.scale.copy(new THREE.Vector3(0.3, 0.3, 0.3));
   room.rotation.y = -Math.PI / 2;
-  //room.position.copy(new THREE.Vector3(3, 1, 12.5));
   room.position.copy(new THREE.Vector3(3.3, 1, 12.5));
   scene.add(room);
 
-  // add shadows
-  // multiple meshes in room, need traversal to cover everything
+  // adding shadows
+  // due to multiple meshes in room, traversal to add shadows to everything
   room.traverse(function (child) {
     if (child.isMesh) {
       child.receiveShadow = true;
     }
   })
 }
-
-// Adding doors and chains
-
-
-// shadows
-renderer.shadowMap.enabled = true;
-shimaebox.castShadow = true;
-
 
 // light
 { 
@@ -81,15 +82,17 @@ shimaebox.castShadow = true;
   light2.target = shimaebox;
   light2.penumbra = 1;
   scene.add(light2);
-  const ambientColor = 0x222222;
-  const ambientLight = new THREE.AmbientLight(ambientColor, 1);
-  //scene.add(ambientLight);
 
   light.castShadow = true;
   light2.castShadow = true;
 }
 
-//raycasting code
+// Raycasting code
+/*
+Listens to mouse movement and click events.
+Adds all intersections to intersections array on mouse move
+On click, uses intersections array for logic
+*/
 const pointer = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
@@ -103,6 +106,7 @@ const onMouseMove = (event) => {
   intersections = intersects;
 }
 window.addEventListener('mousemove', onMouseMove);
+
 // on mouse click
 let isMenuOpen = false;
 const onClick = (event) => {
@@ -117,11 +121,12 @@ const onClick = (event) => {
 }
 window.addEventListener('click', onClick);
 
-// orbit controls
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// Optional orbit controls for debugging
+//import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 //const controls = new OrbitControls( camera, renderer.domElement );
 //controls.update();
 
+// Uses Clock.getDelta() to calculate delta between render cycles
 const clock = new THREE.Clock();
 function render(time) {
   time *= 0.001 / 2;

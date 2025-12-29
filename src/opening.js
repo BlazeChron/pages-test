@@ -1,8 +1,11 @@
-// @author BlazeChron
+// Opening chain door overlay
+// Too lazy for now, leaving this instead of integrating properly into threejs
+
 import * as THREE from 'three';
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const camera = new THREE.PerspectiveCamera( 75, window.innerWidth
+                                            / window.innerHeight, 0.1, 1000 );
 
 const canvas = document.querySelector('#c1')
 const renderer = new THREE.WebGLRenderer({alpha:true, canvas});
@@ -36,8 +39,12 @@ function processChain (gltf) {
   
   const clone = chainBase.clone(true);
 
-  let basePosition = new THREE.Vector3(-center.x + 10, size.y / 2 - center.y * 1.6, -center.z + 2);
-  let cloneBasePosition = new THREE.Vector3(-center.x - 10, size.y / 2 - center.y * 1.6, -center.z);
+  let basePosition = new THREE.Vector3(-center.x + 10,
+                                       size.y / 2 - center.y * 1.6,
+                                       -center.z + 2);
+  let cloneBasePosition = new THREE.Vector3(-center.x - 10,
+                                            size.y / 2 - center.y * 1.6,
+                                            -center.z);
   let t = 0;
   chainBase.position.copy(basePosition);
   clone.position.copy(cloneBasePosition);
@@ -49,7 +56,8 @@ function processChain (gltf) {
   chainBase.applyQuaternion(initialRotation);
 
   const cloneInitialRotation = new THREE.Quaternion();
-  cloneInitialRotation.setFromAxisAngle(new THREE.Vector3(0, 0, 1), -Math.PI / 4);
+  cloneInitialRotation.setFromAxisAngle(new THREE.Vector3(0, 0, 1),
+                                        -Math.PI / 4);
   clone.applyQuaternion(cloneInitialRotation);
   
   //loop
@@ -114,7 +122,9 @@ function processDoors (gltf) {
   const size = box.getSize(new THREE.Vector3());
   const center = box.getCenter(new THREE.Vector3());
 
-  const basePosition = new THREE.Vector3(-center.x, size.y / 2 - center.y * 2, -center.z - 90);
+  const basePosition = new THREE.Vector3(-center.x,
+                                         size.y / 2 - center.y * 2,
+                                         -center.z - 90);
 
   doorBase.position.copy(basePosition);
   doorBase.rotation.y = Math.PI / 2;

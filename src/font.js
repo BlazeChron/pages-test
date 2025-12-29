@@ -1,3 +1,6 @@
+// Font creator with a clickable hitbox.
+// Assumes that fonts have clickable URLs.
+
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import vertex from '../public/assets/menu_assets/shaders/font_vertex.glsl';
@@ -7,7 +10,6 @@ import fontHitboxFragment from '../public/assets/menu_assets/shaders/font_hitbox
 
 export function createFont(f, scene, text, url, x, y, z, fontSize) {
   const loader = new FontLoader();
-  //const font = loader.load(f, (font) => onFontLoad(font, text));
   const font = loader.parse(f);
   const fontMaterial = new THREE.ShaderMaterial({
     vertexShader: vertex,
@@ -20,7 +22,6 @@ export function createFont(f, scene, text, url, x, y, z, fontSize) {
   fontMaterial.uniforms.uTime = {value: 0};
   onFontLoad(font, text);
   function onFontLoad(font, text) {
-    console.log("Font Loaded");
     const message = text;
     const shapes = font.generateShapes(message, fontSize);
     const geometry = new THREE.ShapeGeometry(shapes);
@@ -28,7 +29,6 @@ export function createFont(f, scene, text, url, x, y, z, fontSize) {
     fontMaterial.uniforms.leftEndPosition = {value: geometry.boundingBox.min.x};
     fontMaterial.uniforms.rightEndPosition = {value: geometry.boundingBox.max.x};
     fontMaterial.uniforms.uIsFocused = {value: false};
-    console.log(fontMaterial);
     textMesh = new THREE.Mesh(geometry, fontMaterial);
     textMesh.position.copy(new THREE.Vector3(x, y, z));
     scene.add(textMesh);
@@ -48,8 +48,6 @@ export function createFont(f, scene, text, url, x, y, z, fontSize) {
   }
   function onClick(mesh) {
     if (mesh == hitBoxMesh) {
-      //console.log(`Font ${text} has been clicked`);
-
       if (url !== null) {
         window.open(url);
       }
