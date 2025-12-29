@@ -2,7 +2,9 @@ export default `
 uniform float uTime;
 uniform float leftEndPosition;
 uniform float rightEndPosition;
+uniform bool uIsFocused;
 varying vec3 vPosition;
+
 void main() {
   float time = uTime;
   vec3 position = vPosition;
@@ -15,7 +17,11 @@ void main() {
   if (time <= 0.001) {
     gl_FragColor = vec4(color, 0.0);
   } else {
-    gl_FragColor = vec4(color, 1.0 - step(time, ratio));
+    if (uIsFocused) {
+      gl_FragColor = vec4(color, 1.0 - step(time, ratio));
+    } else {
+      gl_FragColor = vec4(color, 0.8 * (1.0 - step(time, ratio)));
+    }
   }
 }
 `

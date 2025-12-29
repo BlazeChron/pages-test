@@ -19,6 +19,6 @@ void main() {
   if (time <= 0.001) {
     gl_FragColor = vec4(color, 0.0);
   } else {
-    gl_FragColor = vec4(color, step(0.5, uTime - uv.y));
+    gl_FragColor = vec4(color, 0.8 * step(0.5, uTime - uv.y));
   }
 }`

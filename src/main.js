@@ -21,18 +21,15 @@ scene.add(shimaebox);
 
 // add target
 import { createTarget } from './target.js';
-const [target, targetMaterial] = createTarget();
+const [target, targetUpdate] = createTarget();
 target.position.z = 1;
-target.scale.x = 0.5;
-target.scale.y = 0.5;
-target.scale.z = 0.5;
+target.scale.copy(new THREE.Vector3(0.5, 0.5, 0.5));
 scene.add(target);
 
 // create menu
 import { createMenu } from './menu.js';
 import xirodFont from '../public/assets/menu_assets/fonts/xirod_regular.json';
-console.log(xirodFont);
-const [menuUpdate, barMat, fontMat, onMenuClick] = createMenu(target, xirodFont, 1, 1, 0);
+const [menuUpdate, barMat, fontMat, onMenuClick, onMenuHover] = createMenu(target, xirodFont, 1, 1, 0);
 
 // import empty room
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -45,10 +42,11 @@ function processRoom(gltf) {
   const room = gltf.scene;
   room.scale.copy(new THREE.Vector3(0.3, 0.3, 0.3));
   room.rotation.y = -Math.PI / 2;
-  room.position.copy(new THREE.Vector3(3, 1, 12.5));
+  //room.position.copy(new THREE.Vector3(3, 1, 12.5));
+  room.position.copy(new THREE.Vector3(3.3, 1, 12.5));
   scene.add(room);
-  console.log("loaded scene");
 
+  // add shadows
   // multiple meshes in room, need traversal to cover everything
   room.traverse(function (child) {
     if (child.isMesh) {
@@ -110,7 +108,6 @@ const onClick = (event) => {
     intersections.forEach(x => onMenuClick(x.object));
   }
   if (intersections.map(x => x.object).includes(target)) {
-    console.log("Open menu");
     isMenuOpen = true;
   } else {
     isMenuOpen = false;
@@ -123,8 +120,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 //const controls = new OrbitControls( camera, renderer.domElement );
 //controls.update();
 
-console.log(targetMaterial);
-
 function render(time) {
   time *= 0.001 / 2;
     
@@ -133,16 +128,12 @@ function render(time) {
 
   shimaeboxMaterial.uniforms.uTime = {value: time}
 
+  onMenuHover(intersections);
+
   // check if target is hovered
-  if (intersections.map(x => x.object).includes(target) || isMenuOpen) {
-    targetMaterial.uniforms.uTime.value += 0.001 * 5 / 2;
-    targetMaterial.uniforms.uIsFocused = {value: true};
-//    menuUpdate(0.01 * 5);
-  } else {
-    targetMaterial.uniforms.uTime.value += 0.001 / 2;
-    targetMaterial.uniforms.uIsFocused = {value: false};
-//    menuUpdate(-0.01 * 5);
-  }
+  let targetIsFocused = intersections.map(x => x.object).includes(target)
+                        || isMenuOpen;
+  targetUpdate(0.001 / 2, targetIsFocused);                     
   menuUpdate(0.05 * (isMenuOpen ? 1 : -1));
 
   renderer.render(scene, camera);

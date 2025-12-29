@@ -3,7 +3,7 @@ import vertexShader from '../public/assets/menu_assets/shaders/bar_vertex.glsl';
 import fragmentShader from '../public/assets/menu_assets/shaders/bar_fragment.glsl';
 
 export function createBar(scene, x, y, z) {
-  const geometry = new THREE.PlaneGeometry(0.2, 3);
+  const geometry = new THREE.PlaneGeometry(0.1, 3);
   const material = new THREE.ShaderMaterial({
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
