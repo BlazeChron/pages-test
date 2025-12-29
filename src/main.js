@@ -55,6 +55,8 @@ function processRoom(gltf) {
   })
 }
 
+// Adding doors and chains
+
 
 // shadows
 renderer.shadowMap.enabled = true;
