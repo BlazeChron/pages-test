@@ -55,12 +55,13 @@ function processChain (gltf) {
   //loop
   const loop = 2 * size.y / 10;
   let curr = 0;
-  function animate() {
-    chainBase.translateY(0.1);
-    clone.translateY(0.1);
-    curr += 0.1;
-    chainBase.rotateOnAxis(chainBase.up, 0.01);
-    clone.rotateOnAxis(clone.up, 0.01);
+  function animate(delta) {
+    const chainVerticalMovementSpeed = 10 * delta;
+    chainBase.translateY(chainVerticalMovementSpeed);
+    clone.translateY(chainVerticalMovementSpeed);
+    curr += chainVerticalMovementSpeed;
+    chainBase.rotateOnAxis(chainBase.up, delta * 4);
+    clone.rotateOnAxis(clone.up, delta * 4);
 
     if (loop < curr) {
       curr = 0;
@@ -68,10 +69,11 @@ function processChain (gltf) {
       clone.position.copy(cloneBasePosition);
     }
     if (isOpening) {
-      chainBase.position.x -= 0.05;
-      clone.position.x += 0.05;
-      basePosition.x -= 0.05;
-      cloneBasePosition.x += 0.05;
+      const chainHorizontalMovementSpeed = delta * 5;
+      chainBase.position.x -= chainHorizontalMovementSpeed;
+      clone.position.x += chainHorizontalMovementSpeed;
+      basePosition.x -= chainHorizontalMovementSpeed;
+      cloneBasePosition.x += chainHorizontalMovementSpeed;
     }
 
     renderer.render( scene, camera );
@@ -84,10 +86,12 @@ function processChain (gltf) {
 
 let updateArray = [];
 
+const clock = new THREE.Clock();
 // update everything in array
 function animate() {
+  const delta = clock.getDelta();
   for (const element of updateArray) {
-    element();
+    element(delta);
   }
 }
 
@@ -98,7 +102,7 @@ let isOpening = false;
 canvas.onclick = async () => { 
   isOpening = true; 
   // raw time wait lmao
-  await new Promise(r => setTimeout(r, 3000));
+  await new Promise(r => setTimeout(r, 10000));
   canvas.style.visibility = "hidden";
 };
 
@@ -120,10 +124,10 @@ function processDoors (gltf) {
   leftDoor = doorBase.getObjectByName('LeftDoor');
   rightDoor = doorBase.getObjectByName('RightDoor');
 
-  function animate() {
+  function animate(delta) {
     if (isOpening) {
-      leftDoor.position.z += 0.5;
-      rightDoor.position.z -= 0.5;
+      leftDoor.position.z += 50 * delta;
+      rightDoor.position.z -= 50 * delta;
       renderer.render( scene, camera );
     }
   }

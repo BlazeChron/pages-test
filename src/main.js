@@ -122,11 +122,13 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 //const controls = new OrbitControls( camera, renderer.domElement );
 //controls.update();
 
+const clock = new THREE.Clock();
 function render(time) {
   time *= 0.001 / 2;
+  const delta = clock.getDelta();
     
-  shimaebox.rotation.x += 0.001;
-  shimaebox.rotation.y += 0.001;
+  shimaebox.rotation.x += 0.5 * delta;
+  shimaebox.rotation.y += 0.5 * delta;
 
   shimaeboxMaterial.uniforms.uTime = {value: time}
 
@@ -135,8 +137,8 @@ function render(time) {
   // check if target is hovered
   let targetIsFocused = intersections.map(x => x.object).includes(target)
                         || isMenuOpen;
-  targetUpdate(0.001 / 2, targetIsFocused);                     
-  menuUpdate(0.05 * (isMenuOpen ? 1 : -1));
+  targetUpdate(delta, targetIsFocused);                     
+  menuUpdate(delta * 5 * (isMenuOpen ? 1 : -1));
 
   renderer.render(scene, camera);
   requestAnimationFrame(render);

@@ -18,10 +18,10 @@ export function createMenu(scene, f, x, y, z) {
       let barVal = barMat.uniforms.uTime.value;
       if (barVal < 1) {
         updateBar(delta);
+        updateFont3(delta);
       } else {
         updateFont(delta);
         updateFont2(delta);
-        updateFont3(delta);
         updateFont4(delta);
       }
     } else {
@@ -30,10 +30,10 @@ export function createMenu(scene, f, x, y, z) {
       if (fontVal > 0) {
         updateFont(delta);
         updateFont2(delta);
-        updateFont3(delta);
         updateFont4(delta);
       } else {
         updateBar(delta);
+        updateFont3(delta);
       }
     }
   }
