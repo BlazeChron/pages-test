@@ -28,6 +28,12 @@ target.scale.y = 0.5;
 target.scale.z = 0.5;
 scene.add(target);
 
+// create menu
+import { createMenu } from './menu.js';
+import xirodFont from '../public/assets/menu_assets/fonts/xirod_regular.json';
+console.log(xirodFont);
+const [menuUpdate, barMat, fontMat, onMenuClick] = createMenu(target, xirodFont, 1, 1, 0);
+
 // import empty room
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const loader = new GLTFLoader();
@@ -98,16 +104,23 @@ const onMouseMove = (event) => {
 }
 window.addEventListener('mousemove', onMouseMove);
 // on mouse click
+let isMenuOpen = false;
 const onClick = (event) => {
+  if (isMenuOpen) {
+    intersections.forEach(x => onMenuClick(x.object));
+  }
   if (intersections.map(x => x.object).includes(target)) {
     console.log("Open menu");
+    isMenuOpen = true;
+  } else {
+    isMenuOpen = false;
   }
 }
 window.addEventListener('click', onClick);
 
 // orbit controls
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-const controls = new OrbitControls( camera, renderer.domElement );
+//const controls = new OrbitControls( camera, renderer.domElement );
 //controls.update();
 
 console.log(targetMaterial);
@@ -121,17 +134,20 @@ function render(time) {
   shimaeboxMaterial.uniforms.uTime = {value: time}
 
   // check if target is hovered
-  if (intersections.map(x => x.object).includes(target)) {
+  if (intersections.map(x => x.object).includes(target) || isMenuOpen) {
     targetMaterial.uniforms.uTime.value += 0.001 * 5 / 2;
     targetMaterial.uniforms.uIsFocused = {value: true};
+//    menuUpdate(0.01 * 5);
   } else {
     targetMaterial.uniforms.uTime.value += 0.001 / 2;
     targetMaterial.uniforms.uIsFocused = {value: false};
+//    menuUpdate(-0.01 * 5);
   }
+  menuUpdate(0.05 * (isMenuOpen ? 1 : -1));
 
   renderer.render(scene, camera);
   requestAnimationFrame(render);
-  controls.update();
+//  controls.update();
 }
 
 requestAnimationFrame(render);
